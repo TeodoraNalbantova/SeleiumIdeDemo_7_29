@@ -1,4 +1,4 @@
-name: Selenium IDE CI
+name: Selenium Webdriver CI
 
 on:
   push:
@@ -16,15 +16,19 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v3
 
-    - name: Set up .NET Core
+    - name: Set up .NET
       uses: actions/setup-dotnet@v3
       with:
         dotnet-version: '6.0.x'
 
-    - name: Install Chrome
+    - name: Install Chrome and dependencies
       run: |
         sudo apt-get update
-        sudo apt-get install -y google-chrome-stable
+        sudo apt-get install -y wget apt-transport-https
+        wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
+        sudo dpkg -i google-chrome-stable_current_amd64.deb || sudo apt-get install -f
+        rm google-chrome-stable_current_amd64.deb
+        sudo apt-get install -y xvfb
 
     - name: Install dependencies
       run: dotnet restore
@@ -33,6 +37,5 @@ jobs:
       run: dotnet build --no-restore
 
     - name: Run tests
-      env:
-        CHROMEWEBDRIVER: /usr/bin/google-chrome
-      run: dotnet test --verbosity normal
+      run: |
+        xvfb-run --auto-servernum --server-args="-screen 0 1920x1080x24" dotnet test --verbosity normal

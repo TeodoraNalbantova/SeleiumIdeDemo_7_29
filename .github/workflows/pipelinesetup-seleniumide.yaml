@@ -1,4 +1,4 @@
-name: Selenium Webdriver CI
+name: Selenium IDE CI
 
 on:
   push:
@@ -16,10 +16,15 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v3
 
-    - name: Set up .NET
+    - name: Set up .NET Core
       uses: actions/setup-dotnet@v3
       with:
         dotnet-version: '6.0.x'
+
+    - name: Install Chrome
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y google-chrome-stable
 
     - name: Install dependencies
       run: dotnet restore
@@ -27,11 +32,6 @@ jobs:
     - name: Build
       run: dotnet build --no-restore
 
-    - name: Run tests for TestProject1
-      run: dotnet test TestProject1/TestProject1.csproj --verbosity normal
-
-    - name: Run tests for TestProject2
-      run: dotnet test TestProject2/TestProject2.csproj --verbosity normal
-
-    - name: Run tests for TestProject3
-      run: dotnet test TestProject3/TestProject3.csproj --verbosity normal
+    - name: Run tests
+      env:
+      run: dotnet test --verbosity normal
